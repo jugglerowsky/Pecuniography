@@ -1,0 +1,3 @@
+# Store text files with LF line endings in the repository (avoids CRLF/LF noise on Windows)
+* text=auto eol=lf
+*.png binary
