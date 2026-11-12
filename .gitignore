@@ -25,3 +25,6 @@ dist-ssr
 
 # Private project notes (not published)
 CLAUDE.md
+
+# Claude Code local settings
+.claude/
