@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import Header from './components/Header'
 import { useTheme } from './hooks/useTheme'
-import { getBrowserTimeZone } from './utils/datetime'
+import { useTimeZone } from './hooks/useTimeZone'
 
 function App() {
   // Captured once, when the app loads: this is the moment of the query.
   const [queriedAt] = useState(() => new Date())
-  // Default zone is the browser's; step 3 will let the user pick another one.
-  const [timeZone] = useState(getBrowserTimeZone)
+  // Zone used only to *display* that moment (browser's by default, or the user's pick).
+  const { timeZone, browserTimeZone, changeTimeZone } = useTimeZone()
   // Lives here (not in Header) because the chart will also need it later.
   const { theme, toggleTheme } = useTheme()
 
@@ -16,6 +16,8 @@ function App() {
       <Header
         queriedAt={queriedAt}
         timeZone={timeZone}
+        browserTimeZone={browserTimeZone}
+        onTimeZoneChange={changeTimeZone}
         isDark={theme === 'dark'}
         onToggleTheme={toggleTheme}
       />

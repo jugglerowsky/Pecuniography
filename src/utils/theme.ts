@@ -1,3 +1,5 @@
+import { readStorage, writeStorage } from './storage'
+
 export type Theme = 'light' | 'dark'
 
 /**
@@ -11,21 +13,12 @@ export const DARK_SCHEME_QUERY = '(prefers-color-scheme: dark)'
 
 /** Theme the user chose with the switch, or null if they never used it. */
 export function getStoredTheme(): Theme | null {
-  try {
-    const value = localStorage.getItem(THEME_STORAGE_KEY)
-    return value === 'light' || value === 'dark' ? value : null
-  } catch {
-    // localStorage can throw (private mode, blocked storage): act as if empty.
-    return null
-  }
+  const value = readStorage(THEME_STORAGE_KEY)
+  return value === 'light' || value === 'dark' ? value : null
 }
 
 export function storeTheme(theme: Theme): void {
-  try {
-    localStorage.setItem(THEME_STORAGE_KEY, theme)
-  } catch {
-    // Not critical: the theme still works for this visit.
-  }
+  writeStorage(THEME_STORAGE_KEY, theme)
 }
 
 /** Theme already applied to <html> by the inline script in index.html. */

@@ -46,6 +46,25 @@ export function formatUtcOffset(date: Date, timeZone: string): string {
   return `UTC${sign === '' ? '+0' : sign}`
 }
 
+/** UTC offset in minutes at a given moment: "UTC-6" -> -360, "UTC+5:30" -> 330. */
+export function getUtcOffsetMinutes(date: Date, timeZone: string): number {
+  const match = /UTC([+-])(\d+)(?::(\d+))?/.exec(formatUtcOffset(date, timeZone))
+  if (!match) return 0
+  const [, sign, hours, minutes = '0'] = match
+  const total = Number(hours) * 60 + Number(minutes)
+  return sign === '-' ? -total : total
+}
+
+/** True if the browser knows this IANA time zone (e.g. a value read from storage). */
+export function isValidTimeZone(timeZone: string): boolean {
+  try {
+    new Intl.DateTimeFormat(LOCALE, { timeZone })
+    return true
+  } catch {
+    return false
+  }
+}
+
 /** Readable city from an IANA name: "America/Mexico_City" -> "Mexico City". */
 export function getCityName(timeZone: string): string {
   const lastSegment = timeZone.split('/').pop() ?? timeZone
