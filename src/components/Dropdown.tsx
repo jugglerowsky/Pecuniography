@@ -6,6 +6,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from 'react'
+import { CheckIcon, ChevronIcon } from './icons'
 
 export type DropdownOption<T extends string> = {
   value: T
@@ -184,7 +185,10 @@ function Dropdown<T extends string>({
         onKeyDown={handleButtonKeyDown}
         className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-fuchsia-600 text-white shadow hover:bg-fuchsia-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fuchsia-600 dark:bg-fuchsia-500 dark:hover:bg-fuchsia-400 dark:focus-visible:outline-fuchsia-400"
       >
-        <ChevronDownIcon flipped={isOpen} />
+        <ChevronIcon
+          direction="down"
+          className={`size-5 transition-transform motion-reduce:transition-none ${isOpen ? 'rotate-180' : ''}`}
+        />
       </button>
 
       {isOpen && (
@@ -214,7 +218,9 @@ function Dropdown<T extends string>({
                   isActive ? 'bg-fuchsia-100 dark:bg-fuchsia-950' : ''
                 } ${isSelected ? 'font-semibold' : ''}`}
               >
-                <CheckIcon visible={isSelected} />
+                <CheckIcon
+                  className={`size-4 shrink-0 text-fuchsia-600 dark:text-fuchsia-400 ${isSelected ? '' : 'invisible'}`}
+                />
                 {option.content ?? option.label}
               </li>
             )
@@ -222,42 +228,6 @@ function Dropdown<T extends string>({
         </ul>
       )}
     </div>
-  )
-}
-
-// Icon shapes based on Lucide "chevron-down" and "check" (ISC License, https://lucide.dev).
-
-function ChevronDownIcon({ flipped }: { flipped: boolean }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className={`size-5 transition-transform motion-reduce:transition-none ${flipped ? 'rotate-180' : ''}`}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m6 9 6 6 6-6" />
-    </svg>
-  )
-}
-
-function CheckIcon({ visible }: { visible: boolean }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      aria-hidden="true"
-      className={`size-4 shrink-0 text-fuchsia-600 dark:text-fuchsia-400 ${visible ? '' : 'invisible'}`}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M20 6 9 17l-5-5" />
-    </svg>
   )
 }
 

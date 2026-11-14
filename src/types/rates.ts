@@ -10,7 +10,7 @@ export type Currency = {
   name: string
   /** Country or region that uses it, e.g. "Canada", "Euro Area". */
   region: string
-  /** Flag code for the flag-icons package (ISO 3166-1 alpha-2, "eu" for the EU). */
+  /** URL of the flag image (4:3 SVG from the flag-icons package). */
   flag: string
 }
 

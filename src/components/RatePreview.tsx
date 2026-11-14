@@ -7,6 +7,7 @@ import { formatAmount, formatIsoDate } from '../utils/format'
 type RatePreviewProps = {
   base: CurrencyCode
   quote: CurrencyCode
+  amount: number
   from: IsoDate
   to: IsoDate
 }
@@ -15,7 +16,7 @@ type RatePreviewProps = {
  * TEMPORARY (step 4): a plain readout that proves the data layer works.
  * Steps 5–9 replace it with the "Base Currency" and "To" panels.
  */
-function RatePreview({ base, quote, from, to }: RatePreviewProps) {
+function RatePreview({ base, quote, amount, from, to }: RatePreviewProps) {
   const latest = useLatestRate(base, quote)
   const history = useRateHistory(base, quote, from, to)
   const baseName = getCurrency(base)?.name ?? base
@@ -31,7 +32,7 @@ function RatePreview({ base, quote, from, to }: RatePreviewProps) {
         {(rate) => (
           <>
             <p className="text-3xl font-semibold tabular-nums">
-              1.0000 {base} = {formatAmount(rate.rate)} {quote}
+              {formatAmount(amount)} {base} = {formatAmount(amount * rate.rate)} {quote}
             </p>
             <p className="text-sm text-neutral-600 dark:text-neutral-400">
               Rate date: {formatIsoDate(rate.date)}

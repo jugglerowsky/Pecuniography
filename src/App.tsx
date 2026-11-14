@@ -1,7 +1,9 @@
 import { useState } from 'react'
+import BaseCurrencyPanel from './components/BaseCurrencyPanel'
 import Header from './components/Header'
 import RatePreview from './components/RatePreview'
 import { DEFAULT_BASE, DEFAULT_QUOTE } from './data/currencies'
+import { useStoredCurrency } from './hooks/useStoredCurrency'
 import { useTheme } from './hooks/useTheme'
 import { useTimeZone } from './hooks/useTimeZone'
 import { DATA_SOURCE } from './services/rates'
@@ -14,6 +16,10 @@ function App() {
   const { timeZone, browserTimeZone, changeTimeZone } = useTimeZone()
   // Lives here (not in Header) because the chart will also need it later.
   const { theme, toggleTheme } = useTheme()
+  // Currency we convert from: CAD on the first visit, then the last one chosen.
+  const [base, setBase] = useStoredCurrency('pecuniography-base-currency', DEFAULT_BASE)
+  // Amount to convert. Not remembered: every visit starts at 1.
+  const [amount, setAmount] = useState(1)
   // Last 30 days up to today (step 10 will let the user change them).
   const period = getDefaultPeriod(queriedAt, timeZone)
 
@@ -28,8 +34,23 @@ function App() {
         onToggleTheme={toggleTheme}
       />
 
-      <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center px-4">
-        <RatePreview base={DEFAULT_BASE} quote={DEFAULT_QUOTE} from={period.from} to={period.to} />
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-8">
+        {/* Light purple background that holds the panels, as in the wireframe. */}
+        <div className="flex flex-col gap-8 rounded-xl bg-fuchsia-100/70 px-6 py-6 dark:bg-fuchsia-950/40">
+          <BaseCurrencyPanel
+            base={base}
+            onBaseChange={setBase}
+            amount={amount}
+            onAmountChange={setAmount}
+          />
+          <RatePreview
+            base={base}
+            quote={DEFAULT_QUOTE}
+            amount={amount}
+            from={period.from}
+            to={period.to}
+          />
+        </div>
       </main>
 
       <footer className="flex flex-col gap-1 border-t border-neutral-200 px-4 py-3 text-center text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
