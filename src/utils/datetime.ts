@@ -65,6 +65,30 @@ export function isValidTimeZone(timeZone: string): boolean {
   }
 }
 
+/** Calendar date of a moment in a zone, as "YYYY-MM-DD" (the API's format). */
+export function toIsoDate(date: Date, timeZone: string): string {
+  // The en-CA locale writes dates as YYYY-MM-DD.
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(date)
+}
+
+/** "2026-11-13" plus `days` (can be negative) -> "YYYY-MM-DD". */
+export function addDays(isoDate: string, days: number): string {
+  const date = new Date(`${isoDate}T00:00:00Z`)
+  date.setUTCDate(date.getUTCDate() + days)
+  return date.toISOString().slice(0, 10)
+}
+
+/** Default chart period: the last 30 days up to today (in the shown zone). */
+export function getDefaultPeriod(queriedAt: Date, timeZone: string) {
+  const to = toIsoDate(queriedAt, timeZone)
+  return { from: addDays(to, -30), to }
+}
+
 /** Readable city from an IANA name: "America/Mexico_City" -> "Mexico City". */
 export function getCityName(timeZone: string): string {
   const lastSegment = timeZone.split('/').pop() ?? timeZone
