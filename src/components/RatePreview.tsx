@@ -24,7 +24,7 @@ function RatePreview({ base, quote, amount, from, to }: RatePreviewProps) {
 
   return (
     <section aria-live="polite" className="flex flex-col items-center gap-3 text-center">
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
+      <p className="text-sm text-on-backdrop-muted">
         {baseName} → {quoteName}
       </p>
 
@@ -36,7 +36,7 @@ function RatePreview({ base, quote, amount, from, to }: RatePreviewProps) {
                   dimmed previous result still reads correctly. */}
               {formatAmount(amount)} {rate.base} = {formatAmount(amount * rate.rate)} {rate.quote}
             </p>
-            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+            <p className="text-sm text-on-backdrop-muted">
               Rate date: {formatIsoDate(rate.date)}
             </p>
           </>
@@ -45,7 +45,7 @@ function RatePreview({ base, quote, amount, from, to }: RatePreviewProps) {
 
       <Status state={history.state} onRetry={history.retry}>
         {(points) => (
-          <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          <p className="text-sm text-on-backdrop-muted">
             {points.length} business days with data from {formatIsoDate(from)} to{' '}
             {formatIsoDate(to)}
           </p>
@@ -70,7 +70,7 @@ type StatusProps<T> = {
 function Status<T>({ state, onRetry, children }: StatusProps<T>) {
   if (state.status === 'error') {
     return (
-      <div role="alert" className="flex flex-col items-center gap-2 text-sm text-red-700 dark:text-red-400">
+      <div role="alert" className="flex flex-col items-center gap-2 text-sm text-on-backdrop-error">
         <p>{state.message}</p>
         <button
           type="button"
@@ -87,7 +87,7 @@ function Status<T>({ state, onRetry, children }: StatusProps<T>) {
   const data = isLoading ? state.previous : state.data
   // First load: nothing to show yet.
   if (data === undefined) {
-    return <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p>
+    return <p className="text-sm text-on-backdrop-muted">Loading…</p>
   }
 
   return (

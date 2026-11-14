@@ -3,6 +3,34 @@
 /* Class-based dark mode: `dark:` utilities apply when <html> has the `dark` class. */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/*
+ * Color tokens for the "backdrop": the colored area that holds the panels.
+ * Deep purple in light mode, very pale pink in dark mode. Text placed directly
+ * on it uses the `on-backdrop` colors, which flip too so they stay readable.
+ * color-mix() reproduces exactly the colors the page had before the swap,
+ * when they were semi-transparent layers over the page background.
+ */
+:root {
+  --backdrop: color-mix(in srgb, var(--color-fuchsia-950) 40%, var(--color-neutral-950));
+  --on-backdrop: var(--color-neutral-100);
+  --on-backdrop-muted: var(--color-neutral-300);
+  --on-backdrop-error: var(--color-red-300);
+}
+:root.dark {
+  --backdrop: color-mix(in srgb, var(--color-fuchsia-100) 70%, var(--color-white));
+  --on-backdrop: var(--color-neutral-900);
+  --on-backdrop-muted: var(--color-neutral-600);
+  --on-backdrop-error: var(--color-red-700);
+}
+
+/* Registers the tokens as Tailwind colors: bg-backdrop, text-on-backdrop, etc. */
+@theme inline {
+  --color-backdrop: var(--backdrop);
+  --color-on-backdrop: var(--on-backdrop);
+  --color-on-backdrop-muted: var(--on-backdrop-muted);
+  --color-on-backdrop-error: var(--on-backdrop-error);
+}
+
 @layer base {
   /* Tells the browser to draw native controls (scrollbars, date inputs) in the matching theme. */
   :root {

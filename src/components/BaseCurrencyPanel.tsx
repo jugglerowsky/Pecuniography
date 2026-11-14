@@ -21,7 +21,7 @@ function BaseCurrencyPanel({ base, onBaseChange, amount, onAmountChange }: BaseC
 
   return (
     // `relative`: the < > arrows are positioned against this panel's edges.
-    <fieldset className="relative min-w-0 rounded-lg border-2 border-neutral-900 bg-white pt-1 pb-3 dark:border-neutral-500 dark:bg-neutral-900">
+    <fieldset className="relative min-w-0 rounded-lg border-2 border-neutral-900 bg-white pt-1 pb-3 text-neutral-900 dark:border-neutral-500 dark:bg-neutral-900 dark:text-neutral-100">
       <legend className="ml-4 rounded-md border-2 border-neutral-900 bg-white px-2 text-sm font-semibold dark:border-neutral-500 dark:bg-neutral-900">
         Base Currency
       </legend>

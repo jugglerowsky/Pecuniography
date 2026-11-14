@@ -35,8 +35,8 @@ function App() {
       />
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-8">
-        {/* Light purple background that holds the panels, as in the wireframe. */}
-        <div className="flex flex-col gap-8 rounded-xl bg-fuchsia-100/70 px-4 py-6 sm:px-6 dark:bg-fuchsia-950/40">
+        {/* Colored area that holds the panels, as in the wireframe (colors in index.css). */}
+        <div className="flex flex-col gap-8 rounded-xl bg-backdrop px-4 py-6 text-on-backdrop sm:px-6">
           <BaseCurrencyPanel
             base={base}
             onBaseChange={setBase}
