@@ -11,20 +11,37 @@
   :root.dark {
     color-scheme: dark;
   }
+}
 
-  /*
-   * Smooth theme change: while <html> has `theme-transition` (added for 1s by
-   * applyTheme in src/utils/theme.ts), every color fades instead of jumping,
-   * so white goes through gray to black and back.
-   * It lives in the base layer, so elements with their own transition
-   * utilities (like the switch) keep them.
-   */
-  :root.theme-transition,
-  :root.theme-transition *,
-  :root.theme-transition *::before,
-  :root.theme-transition *::after {
-    transition-property: color, background-color, border-color, outline-color, fill, stroke, box-shadow;
-    transition-duration: 1s; /* Keep in sync with THEME_TRANSITION_MS */
-    transition-timing-function: ease-in-out;
+/*
+ * Smooth theme change (View Transitions API, started in src/hooks/useTheme.ts).
+ * The browser cross-fades a picture of the old page into the new one, so
+ * every pixel goes white -> gray -> black (and back) at the same pace.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.5s;
+  animation-timing-function: ease-in-out;
+}
+
+/*
+ * The switch knob has its own view-transition-name, so it is animated apart
+ * from the page: it slides quickly (the group moves it) while its colors and
+ * sun/moon icon fade at the same pace as the page.
+ */
+::view-transition-group(theme-toggle-knob) {
+  animation-duration: 0.2s;
+  animation-timing-function: ease-in-out;
+}
+::view-transition-old(theme-toggle-knob),
+::view-transition-new(theme-toggle-knob) {
+  animation-duration: 0.5s;
+  animation-timing-function: ease-in-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No sliding for people who ask for less motion; the color fade stays. */
+  ::view-transition-group(theme-toggle-knob) {
+    animation-duration: 0s;
   }
 }

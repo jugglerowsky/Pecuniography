@@ -14,13 +14,13 @@ function ThemeToggle({ isDark, onToggle }: ThemeToggleProps) {
       aria-label="Dark mode"
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       onClick={onToggle}
-      // Track color fades in 1s, like the rest of the page.
-      className="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full bg-neutral-300 transition-colors duration-1000 ease-in-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fuchsia-600 dark:bg-neutral-700 dark:focus-visible:outline-fuchsia-400"
+      // No CSS transitions here: the theme fade is a view transition (src/index.css).
+      className="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full bg-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fuchsia-600 dark:bg-neutral-700 dark:focus-visible:outline-fuchsia-400"
     >
-      {/* Knob: slides quickly (200ms) for instant feedback; its color fades in 1s. */}
+      {/* Knob: its own view-transition-name lets it slide while the page fades. */}
       <span
         aria-hidden="true"
-        className={`absolute left-0.5 flex size-6 items-center justify-center rounded-full bg-white shadow transition-[translate,background-color] duration-[200ms,1000ms] ease-in-out motion-reduce:duration-[0ms,1000ms] dark:bg-neutral-900 ${
+        className={`absolute left-0.5 flex size-6 items-center justify-center rounded-full bg-white shadow [view-transition-name:theme-toggle-knob] dark:bg-neutral-900 ${
           isDark ? 'translate-x-5' : 'translate-x-0'
         }`}
       >
