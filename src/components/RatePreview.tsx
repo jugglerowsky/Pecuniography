@@ -32,7 +32,9 @@ function RatePreview({ base, quote, amount, from, to }: RatePreviewProps) {
         {(rate) => (
           <>
             <p className="text-3xl font-semibold tabular-nums">
-              {formatAmount(amount)} {base} = {formatAmount(amount * rate.rate)} {quote}
+              {/* Codes from the data itself: while the next pair loads, the
+                  dimmed previous result still reads correctly. */}
+              {formatAmount(amount)} {rate.base} = {formatAmount(amount * rate.rate)} {rate.quote}
             </p>
             <p className="text-sm text-neutral-600 dark:text-neutral-400">
               Rate date: {formatIsoDate(rate.date)}
@@ -59,11 +61,13 @@ type StatusProps<T> = {
   children: (data: T) => ReactNode
 }
 
-/** Shows "Loading…", an error with a retry button, or the data. */
+/**
+ * Shows the data, an error with a retry button, or "Loading…".
+ * While new data loads, the previous data stays on screen, dimmed, so the
+ * page does not shrink and grow (aria-busy tells screen readers it is updating).
+ * The data always sits in the same <div>, loading or not, so its size is identical.
+ */
 function Status<T>({ state, onRetry, children }: StatusProps<T>) {
-  if (state.status === 'loading') {
-    return <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p>
-  }
   if (state.status === 'error') {
     return (
       <div role="alert" className="flex flex-col items-center gap-2 text-sm text-red-700 dark:text-red-400">
@@ -78,7 +82,24 @@ function Status<T>({ state, onRetry, children }: StatusProps<T>) {
       </div>
     )
   }
-  return <>{children(state.data)}</>
+
+  const isLoading = state.status === 'loading'
+  const data = isLoading ? state.previous : state.data
+  // First load: nothing to show yet.
+  if (data === undefined) {
+    return <p className="text-sm text-neutral-500 dark:text-neutral-400">Loading…</p>
+  }
+
+  return (
+    <div
+      aria-busy={isLoading}
+      className={`flex flex-col items-center gap-3 transition-opacity motion-reduce:transition-none ${
+        isLoading ? 'opacity-40' : ''
+      }`}
+    >
+      {children(data)}
+    </div>
+  )
 }
 
 export default RatePreview

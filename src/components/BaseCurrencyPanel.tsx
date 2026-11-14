@@ -20,17 +20,17 @@ function BaseCurrencyPanel({ base, onBaseChange, amount, onAmountChange }: BaseC
   if (!currency) return null
 
   return (
-    <fieldset className="min-w-0 rounded-lg border-2 border-neutral-900 bg-white pt-1 pb-3 dark:border-neutral-500 dark:bg-neutral-900">
+    // `relative`: the < > arrows are positioned against this panel's edges.
+    <fieldset className="relative min-w-0 rounded-lg border-2 border-neutral-900 bg-white pt-1 pb-3 dark:border-neutral-500 dark:bg-neutral-900">
       <legend className="ml-4 rounded-md border-2 border-neutral-900 bg-white px-2 text-sm font-semibold dark:border-neutral-500 dark:bg-neutral-900">
         Base Currency
       </legend>
 
-      {/* Negative margins put the round arrows right on the panel's border, as in the wireframe. */}
-      <div className="-mx-[19px] mt-2">
+      {/* One column for the currency box and the amount, so both end at the
+          same place. On wider screens, the right padding leaves room for the
+          Swap button (step 7), as in the wireframe. */}
+      <div className="mt-2 flex flex-col gap-4 px-6 sm:pr-24 sm:pl-8">
         <CurrencySelector value={base} onChange={onBaseChange} role="base" />
-      </div>
-
-      <div className="mt-4 px-8 sm:pr-24">
         <AmountInput amount={amount} currency={currency} onChange={onAmountChange} />
       </div>
     </fieldset>

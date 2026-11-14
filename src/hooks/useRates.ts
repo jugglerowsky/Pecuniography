@@ -33,6 +33,9 @@ function useFetch<T>(key: string, load: (signal: AbortSignal) => Promise<T>): Fe
   const [attempt, setAttempt] = useState(0)
   // Each result remembers which request it belongs to.
   const [result, setResult] = useState<{ key: string; state: AsyncState<T> } | null>(null)
+  // Last successful data, whatever request it came from (wrapped in an object
+  // so that "no data yet" is clearly `null`).
+  const [lastData, setLastData] = useState<{ data: T } | null>(null)
   const requestKey = `${key}#${attempt}`
 
   // `load` is a new function on every render. useEffectEvent lets the effect
@@ -43,7 +46,10 @@ function useFetch<T>(key: string, load: (signal: AbortSignal) => Promise<T>): Fe
   useEffect(() => {
     const controller = new AbortController()
     runLoad(controller.signal).then(
-      (data) => setResult({ key: requestKey, state: { status: 'success', data } }),
+      (data) => {
+        setResult({ key: requestKey, state: { status: 'success', data } })
+        setLastData({ data })
+      },
       (error: unknown) => {
         if (controller.signal.aborted) return
         setResult({ key: requestKey, state: { status: 'error', message: toMessage(error) } })
@@ -52,8 +58,10 @@ function useFetch<T>(key: string, load: (signal: AbortSignal) => Promise<T>): Fe
     return () => controller.abort()
   }, [requestKey])
 
-  // While the answer for the current key has not arrived, we are loading.
-  const state: AsyncState<T> = result?.key === requestKey ? result.state : { status: 'loading' }
+  // While the answer for the current key has not arrived, we are loading
+  // (and offer the previous data, if any, to keep on screen).
+  const state: AsyncState<T> =
+    result?.key === requestKey ? result.state : { status: 'loading', previous: lastData?.data }
   return { state, retry: () => setAttempt((n) => n + 1) }
 }
 

@@ -32,6 +32,11 @@ export type LatestRate = RatePoint & {
  * after checking it (e.g. `data` only when status is "success").
  */
 export type AsyncState<T> =
-  | { status: 'loading' }
+  /**
+   * `previous`: the last data that arrived (e.g. for the currency chosen
+   * before). Showing it dimmed while the new data loads keeps the page from
+   * changing size.
+   */
+  | { status: 'loading'; previous?: T }
   | { status: 'error'; message: string }
   | { status: 'success'; data: T }

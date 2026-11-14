@@ -32,6 +32,12 @@ const CURRENCY_OPTIONS: DropdownOption<CurrencyCode>[] = CURRENCIES.map((currenc
  * The arrows walk the list in alphabetical order of country/region and wrap
  * around at both ends; the round "v" button opens the full list.
  * Shared by the "Base Currency" and "To" panels.
+ *
+ * Layout: the gray box takes the width of its column, and the arrows sit on
+ * the edges of the nearest *positioned* ancestor (the panel, which must have
+ * `relative`). They use `position: absolute` with no `top`, so the browser
+ * keeps them at their normal vertical place: centered on the box, because
+ * this row is a flex container with `items-center`.
  */
 function CurrencySelector({ value, onChange, role }: CurrencySelectorProps) {
   const index = Math.max(
@@ -44,17 +50,17 @@ function CurrencySelector({ value, onChange, role }: CurrencySelectorProps) {
   const next = CURRENCIES[(index + 1) % CURRENCIES.length]
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center">
       <ArrowButton
         direction="left"
         label={`Previous ${role} currency: ${previous.region}`}
         onClick={() => onChange(previous.code)}
       />
 
-      <div className="flex min-w-0 flex-1 items-center gap-3 rounded-md bg-neutral-100 px-4 py-2 dark:bg-neutral-800">
+      <div className="flex min-w-0 flex-1 items-center gap-3 rounded-md bg-neutral-100 px-3 py-2 sm:px-4 dark:bg-neutral-800">
         {/* aria-live: screen readers announce the new currency after each change. */}
         <div aria-live="polite" className="min-w-0 flex-1">
-          <p className="flex items-center gap-3 text-2xl font-bold">
+          <p className="flex items-center gap-2 text-xl font-bold sm:gap-3 sm:text-2xl">
             <span className="truncate">{currency.region}</span>
             <Flag currency={currency} className="h-6" />
           </p>
@@ -94,7 +100,10 @@ function ArrowButton({ direction, label, onClick }: ArrowButtonProps) {
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full bg-fuchsia-600 text-white shadow ring-2 ring-white hover:bg-fuchsia-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fuchsia-600 dark:bg-fuchsia-500 dark:ring-neutral-900 dark:hover:bg-fuchsia-400 dark:focus-visible:outline-fuchsia-400"
+      // left-0 / right-0 plus a half-width shift put the button's center on the panel's border.
+      className={`absolute flex size-9 shrink-0 cursor-pointer ${
+        direction === 'left' ? 'left-0 -translate-x-1/2' : 'right-0 translate-x-1/2'
+      } items-center justify-center rounded-full bg-fuchsia-600 text-white shadow ring-2 ring-white hover:bg-fuchsia-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fuchsia-600 dark:bg-fuchsia-500 dark:ring-neutral-900 dark:hover:bg-fuchsia-400 dark:focus-visible:outline-fuchsia-400`}
     >
       <ChevronIcon direction={direction} className="size-5" />
     </button>
