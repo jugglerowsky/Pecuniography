@@ -11,4 +11,20 @@
   :root.dark {
     color-scheme: dark;
   }
+
+  /*
+   * Smooth theme change: while <html> has `theme-transition` (added for 1s by
+   * applyTheme in src/utils/theme.ts), every color fades instead of jumping,
+   * so white goes through gray to black and back.
+   * It lives in the base layer, so elements with their own transition
+   * utilities (like the switch) keep them.
+   */
+  :root.theme-transition,
+  :root.theme-transition *,
+  :root.theme-transition *::before,
+  :root.theme-transition *::after {
+    transition-property: color, background-color, border-color, outline-color, fill, stroke, box-shadow;
+    transition-duration: 1s; /* Keep in sync with THEME_TRANSITION_MS */
+    transition-timing-function: ease-in-out;
+  }
 }
