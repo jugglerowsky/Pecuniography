@@ -1,1 +1,14 @@
 @import "tailwindcss";
+
+/* Class-based dark mode: `dark:` utilities apply when <html> has the `dark` class. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  /* Tells the browser to draw native controls (scrollbars, date inputs) in the matching theme. */
+  :root {
+    color-scheme: light;
+  }
+  :root.dark {
+    color-scheme: dark;
+  }
+}
