@@ -89,10 +89,27 @@ export function daysBetween(from: string, to: string): number {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY)
 }
 
+/** A range of dates, both included ("YYYY-MM-DD"). */
+export type Period = { from: string; to: string }
+
+/** Earliest date the calendars allow (the ECB series starts in 1999). */
+export const EARLIEST_DATE = '2000-01-01'
+
 /** Default chart period: the last 30 days up to today (in the shown zone). */
-export function getDefaultPeriod(queriedAt: Date, timeZone: string) {
+export function getDefaultPeriod(queriedAt: Date, timeZone: string): Period {
   const to = toIsoDate(queriedAt, timeZone)
   return { from: addDays(to, -30), to }
+}
+
+/**
+ * Keeps a chosen period valid when "today" moves (a time zone where it is
+ * still yesterday): the end can't pass today, and the start can't pass the end.
+ * ISO dates compare correctly as plain text: "2026-10-18" < "2026-11-17".
+ */
+export function clampPeriod(period: Period, today: string): Period {
+  const to = period.to > today ? today : period.to
+  const from = period.from > to ? to : period.from
+  return { from, to }
 }
 
 /** Readable city from an IANA name: "America/Mexico_City" -> "Mexico City". */

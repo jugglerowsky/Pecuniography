@@ -22,12 +22,15 @@ export type RatePoint = {
 
 /**
  * Rates of a period for one pair, oldest first (business days only).
- * The codes travel with the points so a dimmed old chart, while the next
- * pair loads, still labels its numbers correctly.
+ * The codes and dates travel with the points so a dimmed old chart, while
+ * the next request loads, still labels and scales its numbers correctly.
  */
 export type RateHistory = {
   base: CurrencyCode
   quote: CurrencyCode
+  /** Period asked for (both days included); the points may start later. */
+  from: IsoDate
+  to: IsoDate
   points: RatePoint[]
 }
 

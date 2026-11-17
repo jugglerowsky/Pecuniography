@@ -16,7 +16,9 @@ import {
   formatAmount,
   formatAxisNumber,
   formatIsoDate,
+  formatMonthYear,
   formatShortIsoDate,
+  formatYear,
   isoDateToTime,
   timeToIsoDate,
 } from '../utils/format'
@@ -24,8 +26,6 @@ import {
 type RateChartProps = {
   state: AsyncState<RateHistory>
   onRetry: () => void
-  from: IsoDate
-  to: IsoDate
 }
 
 /** One chart point: the date as a number, so the X axis can be a real time scale. */
@@ -40,8 +40,10 @@ type ChartPoint = { time: number; rate: number }
  * - Hover (or arrow keys once focused) shows a crosshair and the day's rate.
  * - The same data is in a table for screen readers.
  * Every state uses the same box height, so the panel never jumps.
+ * The period comes with the data: while a new period loads, the dimmed old
+ * chart keeps its own axis instead of being squeezed into the new one.
  */
-function RateChart({ state, onRetry, from, to }: RateChartProps) {
+function RateChart({ state, onRetry }: RateChartProps) {
   const isLoading = state.status === 'loading'
   const history = state.status === 'success' ? state.data : isLoading ? state.previous : undefined
 
@@ -60,7 +62,7 @@ function RateChart({ state, onRetry, from, to }: RateChartProps) {
   } else if (history.points.length === 0) {
     content = <Message>No rates were published in this period.</Message>
   } else {
-    content = <Chart points={history.points} from={from} to={to} quote={history.quote} />
+    content = <Chart points={history.points} from={history.from} to={history.to} quote={history.quote} />
   }
 
   return (
@@ -68,9 +70,11 @@ function RateChart({ state, onRetry, from, to }: RateChartProps) {
       aria-busy={isLoading}
       className={`transition-opacity motion-reduce:transition-none ${isLoading && history ? 'opacity-40' : ''}`}
     >
-      <figcaption className="sr-only">
-        Exchange rate from {formatIsoDate(from)} to {formatIsoDate(to)}
-      </figcaption>
+      {history && (
+        <figcaption className="sr-only">
+          Exchange rate from {formatIsoDate(history.from)} to {formatIsoDate(history.to)}
+        </figcaption>
+      )}
       {/* Fixed height, axis labels included, in every state. */}
       <div className="h-56 rounded-md bg-white px-2 py-2 sm:h-64 dark:bg-neutral-900">{content}</div>
       {history && history.points.length > 0 && <DataTable history={history} />}
@@ -91,6 +95,9 @@ function Chart({ points, from, to, quote }: ChartProps) {
   const data: ChartPoint[] = points.map((point) => ({ time: isoDateToTime(point.date), rate: point.rate }))
   const last = data[data.length - 1]
   const valueTicks = getValueTicks(points.map((point) => point.rate))
+  const dateTicks = getDateTicks(from, to)
+  const start = isoDateToTime(from)
+  const end = isoDateToTime(to)
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -110,9 +117,10 @@ function Chart({ points, from, to, quote }: ChartProps) {
           dataKey="time"
           type="number"
           scale="time"
-          domain={[isoDateToTime(from), isoDateToTime(to)]}
-          ticks={getDateTicks(from, to)}
-          tickFormatter={(time: number) => formatShortIsoDate(timeToIsoDate(time))}
+          // A one-day period gets half a day of room on each side.
+          domain={start === end ? [start - HALF_DAY, end + HALF_DAY] : [start, end]}
+          ticks={dateTicks.ticks}
+          tickFormatter={(time: number) => dateTicks.format(timeToIsoDate(time))}
           tick={{ fill: 'var(--chart-axis)', fontSize: 12 }}
           tickLine={false}
           axisLine={{ stroke: 'var(--chart-grid)' }}
@@ -165,19 +173,38 @@ function Chart({ points, from, to, quote }: ChartProps) {
   )
 }
 
+const HALF_DAY = 12 * 60 * 60 * 1000
+
 /**
- * About five evenly spaced dates for the X axis, starting on the first day:
- * weekly for a month (Oct 18, Oct 25, …), fewer for longer periods,
- * more for very short ones.
+ * About five dates for the X axis and how to write them:
+ * - Up to ~6 months: evenly spaced days from the first one, every day for a
+ *   week, weekly for a month (Oct 18, Oct 25, …), every few weeks after that.
+ * - Longer: the first day of every 1, 2, 3, 6… months ("Jan 2026", "Apr 2026"),
+ *   or of every 1, 2, 5… years for periods of several years ("2024", "2025").
  */
-function getDateTicks(from: IsoDate, to: IsoDate): number[] {
+function getDateTicks(from: IsoDate, to: IsoDate): { ticks: number[]; format: (date: IsoDate) => string } {
   const days = daysBetween(from, to)
-  const step = days <= 10 ? Math.max(1, Math.ceil(days / 5)) : Math.ceil(days / 5 / 7) * 7
-  const ticks: number[] = []
-  for (let offset = 0; offset <= days; offset += step) {
-    ticks.push(isoDateToTime(addDays(from, offset)))
+
+  if (days <= 183) {
+    const step = days <= 10 ? Math.max(1, Math.ceil(days / 5)) : Math.ceil(days / 5 / 7) * 7
+    const ticks: number[] = []
+    for (let offset = 0; offset <= days; offset += step) {
+      ticks.push(isoDateToTime(addDays(from, offset)))
+    }
+    return { ticks, format: formatShortIsoDate }
   }
-  return ticks
+
+  // Count months as year * 12 + month, so steps can cross years.
+  const months = days / 30.44
+  const stepMonths = [1, 2, 3, 6, 12, 24, 60, 120].find((step) => months / step <= 5) ?? 120
+  const [fromYear, fromMonth] = from.split('-').map(Number)
+  const ticks: number[] = []
+  for (let index = fromYear * 12 + fromMonth - 1; ; index++) {
+    const date = `${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}-01`
+    if (date > to) break
+    if (date >= from && index % stepMonths === 0) ticks.push(isoDateToTime(date))
+  }
+  return { ticks, format: stepMonths >= 12 ? formatYear : formatMonthYear }
 }
 
 /** Box that follows the crosshair: the day's rate and its date. */

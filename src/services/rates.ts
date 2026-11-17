@@ -74,7 +74,7 @@ export async function fetchRateHistory(
     .filter((record) => record.quote === quote && record.date >= from && record.date <= to)
     .map(({ date, rate }) => ({ date, rate }))
     .sort((a, b) => a.date.localeCompare(b.date))
-  return { base, quote, points }
+  return { base, quote, from, to, points }
 }
 
 /** Builds the URL, calls the API and turns every failure into a RatesError. */

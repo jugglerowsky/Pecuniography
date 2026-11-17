@@ -62,6 +62,19 @@ export function formatMediumIsoDate(date: IsoDate): string {
   return mediumDateFormat.format(isoDateToTime(date))
 }
 
+const monthYearFormat = new Intl.DateTimeFormat(LOCALE, { timeZone: 'UTC', month: 'short', year: 'numeric' })
+const yearFormat = new Intl.DateTimeFormat(LOCALE, { timeZone: 'UTC', year: 'numeric' })
+
+/** Long chart periods: "2026-10-01" -> "Oct 2026". */
+export function formatMonthYear(date: IsoDate): string {
+  return monthYearFormat.format(isoDateToTime(date))
+}
+
+/** Very long chart periods: "2026-01-01" -> "2026". */
+export function formatYear(date: IsoDate): string {
+  return yearFormat.format(isoDateToTime(date))
+}
+
 const axisNumberFormat = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 4 })
 
 /** Chart value axis: as few decimals as the tick needs (0.72, 0.715, 12,800). */

@@ -1,4 +1,5 @@
 import CurrencySelector from './CurrencySelector'
+import PeriodPicker from './PeriodPicker'
 import RateChange from './RateChange'
 import RateChart from './RateChart'
 import RateStats from './RateStats'
@@ -6,7 +7,7 @@ import RetryButton from './RetryButton'
 import { getCurrency } from '../data/currencies'
 import { useLatestRate, useRateHistory } from '../hooks/useRates'
 import type { AsyncState, CurrencyCode, IsoDate, LatestRate } from '../types/rates'
-import { daysBetween } from '../utils/datetime'
+import { daysBetween, type Period } from '../utils/datetime'
 import { formatAmount, formatIsoDate } from '../utils/format'
 
 type TargetCurrencyPanelProps = {
@@ -15,18 +16,30 @@ type TargetCurrencyPanelProps = {
   onQuoteChange: (code: CurrencyCode) => void
   /** Amount typed in the "Base Currency" panel. */
   amount: number
-  /** Period of the chart and the change (both days included). */
-  from: IsoDate
-  to: IsoDate
+  /** Period of the chart, the change and the statistics (both days included). */
+  period: Period
+  /** Latest date the calendars allow. */
+  today: IsoDate
+  onPeriodChange: (period: Period) => void
 }
 
 /**
  * "To" panel of the wireframe: the currency we convert to and the result.
  * The tab with the code ("USD") and the lavender area anticipate several
  * target currencies, one per tab (after the MVP); for now there is one.
- * Below the result: the change over the period, its chart and statistics.
+ * Below the result: the change over the period, its chart, the calendars
+ * that set the period, and the statistics.
  */
-function TargetCurrencyPanel({ base, quote, onQuoteChange, amount, from, to }: TargetCurrencyPanelProps) {
+function TargetCurrencyPanel({
+  base,
+  quote,
+  onQuoteChange,
+  amount,
+  period,
+  today,
+  onPeriodChange,
+}: TargetCurrencyPanelProps) {
+  const { from, to } = period
   // Hooks go before any early `return`: React needs the same hooks on every render.
   const latest = useLatestRate(base, quote)
   // One request for the period, shared by the change box and the chart.
@@ -66,12 +79,11 @@ function TargetCurrencyPanel({ base, quote, onQuoteChange, amount, from, to }: T
           <RateChange state={history.state} days={daysBetween(from, to)} />
         </div>
 
-        <RateChart
-          state={history.state}
-          onRetry={retryFailed}
-          from={from}
-          to={to}
-        />
+        <RateChart state={history.state} onRetry={retryFailed} />
+        {/* Calendars right under the chart's two ends (-mt-2 pulls them closer). */}
+        <div className="-mt-2">
+          <PeriodPicker period={period} today={today} onChange={onPeriodChange} />
+        </div>
 
         <RateStats state={history.state} />
       </div>

@@ -1,11 +1,12 @@
 import { ChevronIcon } from './icons'
 import type { AsyncState, RateHistory } from '../types/rates'
+import { daysBetween } from '../utils/datetime'
 import { formatPercentChange } from '../utils/format'
 
 type RateChangeProps = {
   /** Rates of the period, oldest first. */
   state: AsyncState<RateHistory>
-  /** Length of the period in calendar days ("After 30 days"). */
+  /** Length of the chosen period in calendar days, shown until data arrives. */
   days: number
 }
 
@@ -17,7 +18,10 @@ type RateChangeProps = {
  */
 function RateChange({ state, days }: RateChangeProps) {
   const isLoading = state.status === 'loading'
-  const points = (state.status === 'success' ? state.data : isLoading ? state.previous : undefined)?.points
+  const history = state.status === 'success' ? state.data : isLoading ? state.previous : undefined
+  const points = history?.points
+  // The days of the data on screen, so a dimmed old change keeps its own label.
+  const shownDays = history ? daysBetween(history.from, history.to) : days
   const change =
     points && points.length >= 2 ? points[points.length - 1].rate / points[0].rate - 1 : undefined
   const text = change === undefined ? '—' : formatPercentChange(change)
@@ -33,7 +37,7 @@ function RateChange({ state, days }: RateChangeProps) {
       {/* Phones: one line, label left and value right. Wider screens: two
           centered lines, as in the wireframe. */}
       <div className="flex items-center justify-between gap-3 rounded-t-md border-b-2 border-neutral-900 bg-neutral-100 px-4 py-2 sm:flex-col sm:justify-center sm:gap-0 sm:py-0.5 dark:border-neutral-300 dark:bg-neutral-800">
-        <p className="text-sm leading-5 text-neutral-700 sm:text-xs sm:leading-4 dark:text-neutral-300">After {days} days:</p>
+        <p className="text-sm leading-5 text-neutral-700 sm:text-xs sm:leading-4 dark:text-neutral-300">After {shownDays.toLocaleString('en-US')} {shownDays === 1 ? 'day' : 'days'}:</p>
         <p
           className={`flex items-center gap-2 text-xl leading-7 font-semibold tabular-nums ${DIRECTION_STYLES[direction].text}`}
         >

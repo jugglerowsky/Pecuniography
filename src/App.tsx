@@ -7,7 +7,7 @@ import { useStoredCurrency } from './hooks/useStoredCurrency'
 import { useTheme } from './hooks/useTheme'
 import { useTimeZone } from './hooks/useTimeZone'
 import { DATA_SOURCE } from './services/rates'
-import { getDefaultPeriod } from './utils/datetime'
+import { clampPeriod, getDefaultPeriod, toIsoDate, type Period } from './utils/datetime'
 
 function App() {
   // Captured once, when the app loads: this is the moment of the query.
@@ -23,8 +23,12 @@ function App() {
   // Amount to convert. Not remembered: every visit starts at 1.
   const [amount, setAmount] = useState(1)
 
-  // Last 30 days up to today, in the shown time zone (step 10 lets the user change them).
-  const period = getDefaultPeriod(queriedAt, timeZone)
+  // Period of the chart. Until the user picks dates it is the last 30 days up
+  // to today, in the shown time zone. Picked dates are not remembered between
+  // visits; if the time zone changes, they stay, trimmed so they never pass today.
+  const today = toIsoDate(queriedAt, timeZone)
+  const [chosenPeriod, setChosenPeriod] = useState<Period | null>(null)
+  const period = chosenPeriod ? clampPeriod(chosenPeriod, today) : getDefaultPeriod(queriedAt, timeZone)
 
   // Swap button: origin and target trade places (both stay remembered).
   // The amount stays the same: "1 CAD -> USD" becomes "1 USD -> CAD".
@@ -59,8 +63,9 @@ function App() {
             quote={quote}
             onQuoteChange={setQuote}
             amount={amount}
-            from={period.from}
-            to={period.to}
+            period={period}
+            today={today}
+            onPeriodChange={setChosenPeriod}
           />
         </div>
       </main>
