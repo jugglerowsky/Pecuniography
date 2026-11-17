@@ -37,7 +37,7 @@ function RateChange({ state, days }: RateChangeProps) {
       {/* Phones: one line, label left and value right. Wider screens: two
           centered lines, as in the wireframe. */}
       <div className="flex items-center justify-between gap-3 rounded-t-md border-b-2 border-neutral-900 bg-neutral-100 px-4 py-2 sm:flex-col sm:justify-center sm:gap-0 sm:py-0.5 dark:border-neutral-300 dark:bg-neutral-800">
-        <p className="text-sm leading-5 text-neutral-700 sm:text-xs sm:leading-4 dark:text-neutral-300">After {shownDays.toLocaleString('en-US')} {shownDays === 1 ? 'day' : 'days'}:</p>
+        <p className="text-sm leading-5 whitespace-nowrap text-neutral-700 sm:text-xs sm:leading-4 dark:text-neutral-300">After {shownDays.toLocaleString('en-US')} {shownDays === 1 ? 'day' : 'days'}:</p>
         <p
           className={`flex items-center gap-2 text-xl leading-7 font-semibold tabular-nums ${DIRECTION_STYLES[direction].text}`}
         >

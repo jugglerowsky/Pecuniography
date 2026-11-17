@@ -15,7 +15,7 @@ function ThemeToggle({ isDark, onToggle }: ThemeToggleProps) {
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       onClick={onToggle}
       // No CSS transitions here: the theme fade is a view transition (src/index.css).
-      className="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full bg-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fuchsia-600 dark:bg-neutral-700 dark:focus-visible:outline-fuchsia-400"
+      className="relative inline-flex h-7 w-12 shrink-0 cursor-pointer items-center rounded-full bg-neutral-300 before:absolute before:inset-x-0 before:-inset-y-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fuchsia-600 dark:bg-neutral-700 dark:focus-visible:outline-fuchsia-400"
     >
       {/* Knob: its own view-transition-name lets it slide while the page fades. */}
       <span

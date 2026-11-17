@@ -101,9 +101,10 @@ function ArrowButton({ direction, label, onClick }: ArrowButtonProps) {
       title={label}
       onClick={onClick}
       // left-0 / right-0 plus a half-width shift put the button's center on the panel's border.
+      // before:-inset-1 grows the (invisible) touch area from 36px to 44px.
       className={`absolute flex size-9 shrink-0 cursor-pointer ${
         direction === 'left' ? 'left-0 -translate-x-1/2' : 'right-0 translate-x-1/2'
-      } items-center justify-center rounded-full bg-fuchsia-600 text-white shadow ring-2 ring-white hover:bg-fuchsia-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fuchsia-600 dark:bg-fuchsia-500 dark:ring-neutral-900 dark:hover:bg-fuchsia-400 dark:focus-visible:outline-fuchsia-400`}
+      } items-center justify-center rounded-full bg-fuchsia-600 text-white shadow ring-2 ring-white before:absolute before:-inset-1 hover:bg-fuchsia-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fuchsia-600 dark:bg-fuchsia-500 dark:ring-neutral-900 dark:hover:bg-fuchsia-400 dark:focus-visible:outline-fuchsia-400`}
     >
       <ChevronIcon direction={direction} className="size-5" />
     </button>

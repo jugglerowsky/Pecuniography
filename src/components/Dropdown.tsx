@@ -183,7 +183,8 @@ function Dropdown<T extends string>({
         aria-controls={isOpen ? listId : undefined}
         onClick={() => (isOpen ? close(false) : open())}
         onKeyDown={handleButtonKeyDown}
-        className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-fuchsia-600 text-white shadow hover:bg-fuchsia-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fuchsia-600 dark:bg-fuchsia-500 dark:hover:bg-fuchsia-400 dark:focus-visible:outline-fuchsia-400"
+        // before:-inset-2: invisible 44px touch area around the 28px button.
+        className="relative flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full bg-fuchsia-600 before:absolute before:-inset-2 text-white shadow hover:bg-fuchsia-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fuchsia-600 dark:bg-fuchsia-500 dark:hover:bg-fuchsia-400 dark:focus-visible:outline-fuchsia-400"
       >
         <ChevronIcon
           direction="down"
@@ -214,7 +215,8 @@ function Dropdown<T extends string>({
                 aria-label={option.label}
                 onPointerMove={() => setActiveIndex(index)}
                 onClick={() => choose(index)}
-                className={`flex cursor-pointer items-center gap-2 px-3 py-1.5 ${
+                // Taller rows on phones (44px) for fingers; compact with a mouse.
+                className={`flex cursor-pointer items-center gap-2 px-3 py-3 sm:py-1.5 ${
                   isActive ? 'bg-fuchsia-100 dark:bg-fuchsia-950' : ''
                 } ${isSelected ? 'font-semibold' : ''}`}
               >

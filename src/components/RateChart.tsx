@@ -16,6 +16,7 @@ import {
   formatAmount,
   formatAxisNumber,
   formatIsoDate,
+  formatMediumIsoDate,
   formatMonthYear,
   formatShortIsoDate,
   formatYear,
@@ -62,7 +63,15 @@ function RateChart({ state, onRetry }: RateChartProps) {
   } else if (history.points.length === 0) {
     content = <Message>No rates were published in this period.</Message>
   } else {
-    content = <Chart points={history.points} from={history.from} to={history.to} quote={history.quote} />
+    content = (
+      <Chart
+        points={history.points}
+        from={history.from}
+        to={history.to}
+        base={history.base}
+        quote={history.quote}
+      />
+    )
   }
 
   return (
@@ -75,8 +84,11 @@ function RateChart({ state, onRetry }: RateChartProps) {
           Exchange rate from {formatIsoDate(history.from)} to {formatIsoDate(history.to)}
         </figcaption>
       )}
-      {/* Fixed height, axis labels included, in every state. */}
-      <div className="h-56 rounded-md bg-white px-2 py-2 sm:h-64 dark:bg-neutral-900">{content}</div>
+      {/* Fixed height, axis labels included, in every state. The [&_…] class
+          gives the focusable chart SVG a visible keyboard focus ring. */}
+      <div className="h-56 rounded-md bg-white px-2 py-2 sm:h-64 dark:bg-neutral-900 [&_.recharts-surface:focus-visible]:rounded-sm [&_.recharts-surface:focus-visible]:outline-2 [&_.recharts-surface:focus-visible]:outline-offset-2 [&_.recharts-surface:focus-visible]:outline-fuchsia-600 dark:[&_.recharts-surface:focus-visible]:outline-fuchsia-400">
+        {content}
+      </div>
       {history && history.points.length > 0 && <DataTable history={history} />}
     </figure>
   )
@@ -86,10 +98,11 @@ type ChartProps = {
   points: RatePoint[]
   from: IsoDate
   to: IsoDate
+  base: CurrencyCode
   quote: CurrencyCode
 }
 
-function Chart({ points, from, to, quote }: ChartProps) {
+function Chart({ points, from, to, base, quote }: ChartProps) {
   // Each chart needs its own gradient id (SVG ids are global to the page).
   const gradientId = useId()
   const data: ChartPoint[] = points.map((point) => ({ time: isoDateToTime(point.date), rate: point.rate }))
@@ -101,7 +114,15 @@ function Chart({ points, from, to, quote }: ChartProps) {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <AreaChart data={data} margin={{ top: 8, right: 12, bottom: 0, left: 0 }}>
+      <AreaChart
+        data={data}
+        margin={{ top: 8, right: 12, bottom: 0, left: 0 }}
+        // The chart can take keyboard focus (Recharts' accessibility layer):
+        // the left/right arrow keys move the tooltip from day to day. These
+        // become the SVG's <title> and <desc>, which screen readers announce.
+        title={`1 ${base} in ${quote}, ${formatMediumIsoDate(from)} to ${formatMediumIsoDate(to)}`}
+        desc="Use the left and right arrow keys to read the rate of each day."
+      >
         <defs>
           {/* A light wash under the line, fading toward the bottom. */}
           <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">

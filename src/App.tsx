@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import BaseCurrencyPanel from './components/BaseCurrencyPanel'
 import Header from './components/Header'
 import TargetCurrencyPanel from './components/TargetCurrencyPanel'
@@ -72,19 +72,30 @@ function App() {
 
       <footer className="flex flex-col gap-1 border-t border-neutral-200 px-4 py-3 text-center text-xs text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
         <p>
-          Source:{' '}
-          <a href={DATA_SOURCE.url} className="underline hover:text-fuchsia-700 dark:hover:text-fuchsia-300">
-            {DATA_SOURCE.name}
-          </a>{' '}
-          via{' '}
-          <a href={DATA_SOURCE.viaUrl} className="underline hover:text-fuchsia-700 dark:hover:text-fuchsia-300">
-            {DATA_SOURCE.via}
-          </a>
+          Source: <FooterLink href={DATA_SOURCE.url}>{DATA_SOURCE.name}</FooterLink> via{' '}
+          <FooterLink href={DATA_SOURCE.viaUrl}>{DATA_SOURCE.via}</FooterLink>
           . Rates are published on business days only.
         </p>
         <p>Pecuniography is not a financial advisory tool.</p>
+        {/* Credits for the open-source pieces the app uses, and a link to its code. */}
+        <p>
+          Flags by{' '}
+          <FooterLink href="https://github.com/lipis/flag-icons">flag-icons</FooterLink> · Icons based on{' '}
+          <FooterLink href="https://lucide.dev">Lucide</FooterLink> and{' '}
+          <FooterLink href="https://feathericons.com">Feather</FooterLink> · Chart by{' '}
+          <FooterLink href="https://recharts.org">Recharts</FooterLink> ·{' '}
+          <FooterLink href="https://github.com/jugglerowsky/Pecuniography">Source code on GitHub</FooterLink>
+        </p>
       </footer>
     </div>
+  )
+}
+
+function FooterLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <a href={href} className="underline hover:text-fuchsia-700 dark:hover:text-fuchsia-300">
+      {children}
+    </a>
   )
 }
 

@@ -115,7 +115,8 @@ function DateField({ label, value, min, max, onChange, className = '' }: DateFie
             // Older browsers: the tap or click itself already opens the calendar.
           }
         }}
-        className="absolute inset-0 size-full cursor-pointer opacity-0"
+        // 6px above and below the 32px button: a 44px touch area.
+        className="absolute inset-x-0 -inset-y-1.5 cursor-pointer opacity-0"
       />
     </div>
   )

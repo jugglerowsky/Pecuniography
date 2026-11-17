@@ -1,10 +1,11 @@
 import CurrencySelector from './CurrencySelector'
+import LazyRateChart from './LazyRateChart'
 import PeriodPicker from './PeriodPicker'
 import RateChange from './RateChange'
-import RateChart from './RateChart'
 import RateStats from './RateStats'
 import RetryButton from './RetryButton'
 import { getCurrency } from '../data/currencies'
+import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import { useLatestRate, useRateHistory } from '../hooks/useRates'
 import type { AsyncState, CurrencyCode, IsoDate, LatestRate } from '../types/rates'
 import { daysBetween, type Period } from '../utils/datetime'
@@ -79,7 +80,7 @@ function TargetCurrencyPanel({
           <RateChange state={history.state} days={daysBetween(from, to)} />
         </div>
 
-        <RateChart state={history.state} onRetry={retryFailed} />
+        <LazyRateChart state={history.state} onRetry={retryFailed} />
         {/* Calendars right under the chart's two ends (-mt-2 pulls them closer). */}
         <div className="-mt-2">
           <PeriodPicker period={period} today={today} onChange={onPeriodChange} />
@@ -109,15 +110,22 @@ function ConversionResult({ state, onRetry, amount, quote }: ConversionResultPro
   const isLoading = state.status === 'loading'
   const rate =
     state.status === 'success' ? state.data : isLoading ? state.previous : undefined
+  // What screen readers hear, once typing pauses: "250.0000 CAD = 174.9400 USD".
+  const announcement = useDebouncedValue(
+    state.status === 'success'
+      ? `${formatAmount(amount)} ${state.data.base} = ${formatAmount(amount * state.data.rate)} ${state.data.quote}`
+      : '',
+    700,
+  )
 
   return (
     <div
       aria-busy={isLoading}
       className={`transition-opacity motion-reduce:transition-none ${isLoading && rate ? 'opacity-40' : ''}`}
     >
-      {/* <output> is announced by screen readers when it changes. Codes come
-          from the rate itself, so a dimmed old result still reads correctly. */}
-      <output className="flex items-baseline gap-4 rounded-t-md border-b-2 border-neutral-900 bg-neutral-100 px-4 py-2 dark:border-neutral-300 dark:bg-neutral-800">
+      {/* Codes come from the rate itself, so a dimmed old result still reads
+          correctly. Not a live region: the announcement below speaks for it. */}
+      <div className="flex items-baseline gap-4 rounded-t-md border-b-2 border-neutral-900 bg-neutral-100 px-4 py-2 dark:border-neutral-300 dark:bg-neutral-800">
         <span className="text-xl">=</span>
         {/* A huge result wraps instead of overflowing on phones: preferably
             after a comma (<wbr>), and anywhere as a last resort. */}
@@ -125,7 +133,10 @@ function ConversionResult({ state, onRetry, amount, quote }: ConversionResultPro
           {rate ? <BreakAfterCommas text={formatAmount(amount * rate.rate)} /> : '—'}
         </span>
         <span className="text-xl text-neutral-700 dark:text-neutral-300">{rate?.quote ?? quote}</span>
-      </output>
+      </div>
+      <p aria-live="polite" className="sr-only">
+        {announcement}
+      </p>
 
       {state.status === 'error' ? (
         <div
@@ -139,12 +150,14 @@ function ConversionResult({ state, onRetry, amount, quote }: ConversionResultPro
         <p className="mt-1 min-h-5 text-sm text-neutral-700 dark:text-neutral-300">
           {rate ? (
             <>
-              <span className="tabular-nums">
+              {/* nowrap pieces: on phones the line breaks at " · ", never
+                  inside the rate or the date ("November / 17, 2026"). */}
+              <span className="whitespace-nowrap tabular-nums">
                 1 {rate.base} = {formatAmount(rate.rate)} {rate.quote}
               </span>
               {' · '}
               {/* The rate date can be earlier than today: weekends and holidays have no rate. */}
-              Rate of {formatIsoDate(rate.date)}
+              <span className="whitespace-nowrap">Rate of {formatIsoDate(rate.date)}</span>
             </>
           ) : (
             'Loading rate…'
