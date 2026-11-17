@@ -25,3 +25,44 @@ const isoDateFormat = new Intl.DateTimeFormat(LOCALE, {
 export function formatIsoDate(date: IsoDate): string {
   return isoDateFormat.format(new Date(`${date}T00:00:00Z`))
 }
+
+const percentFormat = new Intl.NumberFormat(LOCALE, {
+  style: 'percent',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+  // "+0.56%" and "-0.12%", but plain "0.00%" when nothing changed.
+  signDisplay: 'exceptZero',
+})
+
+/** Change as a fraction -> signed percentage: 0.0056 -> "+0.56%". */
+export function formatPercentChange(fraction: number): string {
+  return percentFormat.format(fraction)
+}
+
+const shortDateFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: 'UTC',
+  month: 'short',
+  day: 'numeric',
+})
+
+/** Chart axis labels: "2026-10-18" -> "Oct 18". */
+export function formatShortIsoDate(date: IsoDate): string {
+  return shortDateFormat.format(isoDateToTime(date))
+}
+
+const axisNumberFormat = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 4 })
+
+/** Chart value axis: as few decimals as the tick needs (0.72, 0.715, 12,800). */
+export function formatAxisNumber(value: number): string {
+  return axisNumberFormat.format(value)
+}
+
+/** "2026-11-13" -> milliseconds at 00:00 UTC that day (for the chart's time axis). */
+export function isoDateToTime(date: IsoDate): number {
+  return Date.parse(`${date}T00:00:00Z`)
+}
+
+/** Milliseconds from isoDateToTime() -> "2026-11-13". */
+export function timeToIsoDate(time: number): IsoDate {
+  return new Date(time).toISOString().slice(0, 10)
+}

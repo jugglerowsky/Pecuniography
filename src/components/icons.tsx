@@ -6,6 +6,7 @@ import type { CSSProperties } from 'react'
 type IconProps = { className?: string; style?: CSSProperties }
 
 const CHEVRON_PATHS = {
+  up: 'm18 15-6-6-6 6',
   down: 'm6 9 6 6 6-6',
   left: 'm15 18-6-6 6-6',
   right: 'm9 18 6-6-6-6',

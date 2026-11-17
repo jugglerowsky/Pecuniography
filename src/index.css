@@ -23,6 +23,26 @@
   --on-backdrop-error: var(--color-red-700);
 }
 
+/*
+ * Chart colors (src/components/RateChart.tsx). The SVG reads them with
+ * var(--chart-*), so the chart follows the theme without re-rendering.
+ * Line colors checked for contrast and lightness against each surface.
+ */
+:root {
+  --chart-surface: var(--color-white);
+  --chart-line: var(--color-fuchsia-600);
+  --chart-grid: var(--color-neutral-200);
+  --chart-axis: var(--color-neutral-500);
+  --chart-crosshair: var(--color-neutral-400);
+}
+:root.dark {
+  --chart-surface: var(--color-neutral-900);
+  --chart-line: var(--color-fuchsia-500);
+  --chart-grid: var(--color-neutral-800);
+  --chart-axis: var(--color-neutral-400);
+  --chart-crosshair: var(--color-neutral-500);
+}
+
 /* Registers the tokens as Tailwind colors: bg-backdrop, text-on-backdrop, etc. */
 @theme inline {
   --color-backdrop: var(--backdrop);

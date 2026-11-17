@@ -7,6 +7,7 @@ import { useStoredCurrency } from './hooks/useStoredCurrency'
 import { useTheme } from './hooks/useTheme'
 import { useTimeZone } from './hooks/useTimeZone'
 import { DATA_SOURCE } from './services/rates'
+import { getDefaultPeriod } from './utils/datetime'
 
 function App() {
   // Captured once, when the app loads: this is the moment of the query.
@@ -21,6 +22,9 @@ function App() {
   const [quote, setQuote] = useStoredCurrency('pecuniography-quote-currency', DEFAULT_QUOTE)
   // Amount to convert. Not remembered: every visit starts at 1.
   const [amount, setAmount] = useState(1)
+
+  // Last 30 days up to today, in the shown time zone (step 10 lets the user change them).
+  const period = getDefaultPeriod(queriedAt, timeZone)
 
   // Swap button: origin and target trade places (both stay remembered).
   // The amount stays the same: "1 CAD -> USD" becomes "1 USD -> CAD".
@@ -50,7 +54,14 @@ function App() {
             onAmountChange={setAmount}
             onSwap={swapCurrencies}
           />
-          <TargetCurrencyPanel base={base} quote={quote} onQuoteChange={setQuote} amount={amount} />
+          <TargetCurrencyPanel
+            base={base}
+            quote={quote}
+            onQuoteChange={setQuote}
+            amount={amount}
+            from={period.from}
+            to={period.to}
+          />
         </div>
       </main>
 

@@ -83,6 +83,12 @@ export function addDays(isoDate: string, days: number): string {
   return date.toISOString().slice(0, 10)
 }
 
+/** Whole days from one "YYYY-MM-DD" to another: ("2026-10-18", "2026-11-17") -> 30. */
+export function daysBetween(from: string, to: string): number {
+  const DAY = 24 * 60 * 60 * 1000
+  return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY)
+}
+
 /** Default chart period: the last 30 days up to today (in the shown zone). */
 export function getDefaultPeriod(queriedAt: Date, timeZone: string) {
   const to = toIsoDate(queriedAt, timeZone)
