@@ -39,8 +39,8 @@ function TargetCurrencyPanel({ base, quote, onQuoteChange, amount }: TargetCurre
 
       {/* Lavender area. Its padding lines its content up with the "Base Currency"
           column: 12px (panel) + 2px (border) + 10px = 24px on phones, and
-          12 + 2 + 18 = 32px left / 12 + 2 + 82 = 96px right on wider screens. */}
-      <div className="flex flex-col gap-4 rounded-md border-2 border-neutral-900 bg-indigo-100 px-2.5 py-4 sm:pr-20.5 sm:pl-4.5 dark:border-neutral-500 dark:bg-indigo-950">
+          12 + 2 + 18 = 32px on wider screens. */}
+      <div className="flex flex-col gap-4 rounded-md border-2 border-neutral-900 bg-indigo-100 px-2.5 py-4 sm:px-4.5 dark:border-neutral-500 dark:bg-indigo-950">
         <CurrencySelector value={quote} onChange={onQuoteChange} role="target" />
         <ConversionResult state={latest.state} onRetry={latest.retry} amount={amount} quote={quote} />
       </div>
