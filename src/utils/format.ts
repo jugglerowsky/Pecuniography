@@ -50,6 +50,18 @@ export function formatShortIsoDate(date: IsoDate): string {
   return shortDateFormat.format(isoDateToTime(date))
 }
 
+const mediumDateFormat = new Intl.DateTimeFormat(LOCALE, {
+  timeZone: 'UTC',
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+})
+
+/** Statistics: "2026-10-19" -> "Oct 19, 2026". */
+export function formatMediumIsoDate(date: IsoDate): string {
+  return mediumDateFormat.format(isoDateToTime(date))
+}
+
 const axisNumberFormat = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 4 })
 
 /** Chart value axis: as few decimals as the tick needs (0.72, 0.715, 12,800). */

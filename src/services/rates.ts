@@ -4,7 +4,7 @@
 //
 // API docs: https://frankfurter.dev/llms.txt (Frankfurter v2).
 
-import type { CurrencyCode, IsoDate, LatestRate, RatePoint } from '../types/rates'
+import type { CurrencyCode, IsoDate, LatestRate, RateHistory } from '../types/rates'
 
 const API_URL = 'https://api.frankfurter.dev/v2'
 
@@ -56,7 +56,7 @@ export async function fetchLatestRate(
 
 /**
  * One rate per business day between two dates (both included), oldest first.
- * Weekends and holidays are simply missing. An empty array means no data.
+ * Weekends and holidays are simply missing. No points means no data.
  */
 export async function fetchRateHistory(
   base: CurrencyCode,
@@ -64,13 +64,17 @@ export async function fetchRateHistory(
   from: IsoDate,
   to: IsoDate,
   signal?: AbortSignal,
-): Promise<RatePoint[]> {
+): Promise<RateHistory> {
   const records = await request<ApiRate[]>('/rates', { base, quotes: quote, from, to }, signal)
   if (!Array.isArray(records) || !records.every(isApiRate)) throw unexpectedResponse()
-  return records
-    .filter((record) => record.quote === quote)
+  const points = records
+    // When `from` falls on a weekend or holiday, the API also sends the last
+    // rate before it (the one in force that day). We keep only the period's
+    // own dates, so every date shown falls inside the chosen range.
+    .filter((record) => record.quote === quote && record.date >= from && record.date <= to)
     .map(({ date, rate }) => ({ date, rate }))
     .sort((a, b) => a.date.localeCompare(b.date))
+  return { base, quote, points }
 }
 
 /** Builds the URL, calls the API and turns every failure into a RatesError. */

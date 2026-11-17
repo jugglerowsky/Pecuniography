@@ -1,6 +1,7 @@
 import CurrencySelector from './CurrencySelector'
 import RateChange from './RateChange'
 import RateChart from './RateChart'
+import RateStats from './RateStats'
 import RetryButton from './RetryButton'
 import { getCurrency } from '../data/currencies'
 import { useLatestRate, useRateHistory } from '../hooks/useRates'
@@ -23,8 +24,7 @@ type TargetCurrencyPanelProps = {
  * "To" panel of the wireframe: the currency we convert to and the result.
  * The tab with the code ("USD") and the lavender area anticipate several
  * target currencies, one per tab (after the MVP); for now there is one.
- * Below the result: the change over the period and its chart (step 9 adds
- * the statistics).
+ * Below the result: the change over the period, its chart and statistics.
  */
 function TargetCurrencyPanel({ base, quote, onQuoteChange, amount, from, to }: TargetCurrencyPanelProps) {
   // Hooks go before any early `return`: React needs the same hooks on every render.
@@ -71,9 +71,9 @@ function TargetCurrencyPanel({ base, quote, onQuoteChange, amount, from, to }: T
           onRetry={retryFailed}
           from={from}
           to={to}
-          base={base}
-          quote={quote}
         />
+
+        <RateStats state={history.state} />
       </div>
     </fieldset>
   )

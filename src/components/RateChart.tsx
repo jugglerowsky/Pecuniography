@@ -10,7 +10,7 @@ import {
   YAxis,
 } from 'recharts'
 import RetryButton from './RetryButton'
-import type { AsyncState, CurrencyCode, IsoDate, RatePoint } from '../types/rates'
+import type { AsyncState, CurrencyCode, IsoDate, RateHistory, RatePoint } from '../types/rates'
 import { addDays, daysBetween } from '../utils/datetime'
 import {
   formatAmount,
@@ -22,12 +22,10 @@ import {
 } from '../utils/format'
 
 type RateChartProps = {
-  state: AsyncState<RatePoint[]>
+  state: AsyncState<RateHistory>
   onRetry: () => void
   from: IsoDate
   to: IsoDate
-  base: CurrencyCode
-  quote: CurrencyCode
 }
 
 /** One chart point: the date as a number, so the X axis can be a real time scale. */
@@ -43,9 +41,9 @@ type ChartPoint = { time: number; rate: number }
  * - The same data is in a table for screen readers.
  * Every state uses the same box height, so the panel never jumps.
  */
-function RateChart({ state, onRetry, from, to, base, quote }: RateChartProps) {
+function RateChart({ state, onRetry, from, to }: RateChartProps) {
   const isLoading = state.status === 'loading'
-  const points = state.status === 'success' ? state.data : isLoading ? state.previous : undefined
+  const history = state.status === 'success' ? state.data : isLoading ? state.previous : undefined
 
   let content: ReactNode
   if (state.status === 'error') {
@@ -57,25 +55,25 @@ function RateChart({ state, onRetry, from, to, base, quote }: RateChartProps) {
         </div>
       </Message>
     )
-  } else if (points === undefined) {
+  } else if (history === undefined) {
     content = <Message>Loading chart…</Message>
-  } else if (points.length === 0) {
+  } else if (history.points.length === 0) {
     content = <Message>No rates were published in this period.</Message>
   } else {
-    content = <Chart points={points} from={from} to={to} quote={quote} />
+    content = <Chart points={history.points} from={from} to={to} quote={history.quote} />
   }
 
   return (
     <figure
       aria-busy={isLoading}
-      className={`transition-opacity motion-reduce:transition-none ${isLoading && points ? 'opacity-40' : ''}`}
+      className={`transition-opacity motion-reduce:transition-none ${isLoading && history ? 'opacity-40' : ''}`}
     >
       <figcaption className="sr-only">
-        {base} to {quote} rate from {formatIsoDate(from)} to {formatIsoDate(to)}
+        Exchange rate from {formatIsoDate(from)} to {formatIsoDate(to)}
       </figcaption>
       {/* Fixed height, axis labels included, in every state. */}
       <div className="h-56 rounded-md bg-white px-2 py-2 sm:h-64 dark:bg-neutral-900">{content}</div>
-      {points && points.length > 0 && <DataTable points={points} base={base} quote={quote} />}
+      {history && history.points.length > 0 && <DataTable history={history} />}
     </figure>
   )
 }
@@ -222,7 +220,7 @@ function ChartTooltip({ point, quote }: { point: ChartPoint | undefined; quote: 
 }
 
 /** The chart's numbers for screen readers (visually hidden). */
-function DataTable({ points, base, quote }: { points: RatePoint[]; base: CurrencyCode; quote: CurrencyCode }) {
+function DataTable({ history: { points, base, quote } }: { history: RateHistory }) {
   return (
     <table className="sr-only">
       <caption>

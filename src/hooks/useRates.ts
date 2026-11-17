@@ -1,6 +1,6 @@
 import { useEffect, useEffectEvent, useState } from 'react'
 import { fetchLatestRate, fetchRateHistory, RatesError } from '../services/rates'
-import type { AsyncState, CurrencyCode, IsoDate, LatestRate, RatePoint } from '../types/rates'
+import type { AsyncState, CurrencyCode, IsoDate, LatestRate, RateHistory } from '../types/rates'
 
 /** Latest rate for a pair. Refetches whenever base or quote change. */
 export function useLatestRate(base: CurrencyCode, quote: CurrencyCode) {
@@ -11,7 +11,7 @@ export function useLatestRate(base: CurrencyCode, quote: CurrencyCode) {
 
 /** Business-day rates between two dates. Refetches when any input changes. */
 export function useRateHistory(base: CurrencyCode, quote: CurrencyCode, from: IsoDate, to: IsoDate) {
-  return useFetch<RatePoint[]>(`history:${base}:${quote}:${from}:${to}`, (signal) =>
+  return useFetch<RateHistory>(`history:${base}:${quote}:${from}:${to}`, (signal) =>
     fetchRateHistory(base, quote, from, to, signal),
   )
 }

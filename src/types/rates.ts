@@ -20,6 +20,17 @@ export type RatePoint = {
   rate: number
 }
 
+/**
+ * Rates of a period for one pair, oldest first (business days only).
+ * The codes travel with the points so a dimmed old chart, while the next
+ * pair loads, still labels its numbers correctly.
+ */
+export type RateHistory = {
+  base: CurrencyCode
+  quote: CurrencyCode
+  points: RatePoint[]
+}
+
 /** Most recent rate. Its date can be earlier than today (weekends, holidays). */
 export type LatestRate = RatePoint & {
   base: CurrencyCode

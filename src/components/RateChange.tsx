@@ -1,10 +1,10 @@
 import { ChevronIcon } from './icons'
-import type { AsyncState, RatePoint } from '../types/rates'
+import type { AsyncState, RateHistory } from '../types/rates'
 import { formatPercentChange } from '../utils/format'
 
 type RateChangeProps = {
   /** Rates of the period, oldest first. */
-  state: AsyncState<RatePoint[]>
+  state: AsyncState<RateHistory>
   /** Length of the period in calendar days ("After 30 days"). */
   days: number
 }
@@ -17,7 +17,7 @@ type RateChangeProps = {
  */
 function RateChange({ state, days }: RateChangeProps) {
   const isLoading = state.status === 'loading'
-  const points = state.status === 'success' ? state.data : isLoading ? state.previous : undefined
+  const points = (state.status === 'success' ? state.data : isLoading ? state.previous : undefined)?.points
   const change =
     points && points.length >= 2 ? points[points.length - 1].rate / points[0].rate - 1 : undefined
   const text = change === undefined ? '—' : formatPercentChange(change)
