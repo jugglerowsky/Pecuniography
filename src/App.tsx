@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import BaseCurrencyPanel from './components/BaseCurrencyPanel'
 import Header from './components/Header'
-import RatePreview from './components/RatePreview'
+import TargetCurrencyPanel from './components/TargetCurrencyPanel'
 import { DEFAULT_BASE, DEFAULT_QUOTE } from './data/currencies'
 import { useStoredCurrency } from './hooks/useStoredCurrency'
 import { useTheme } from './hooks/useTheme'
 import { useTimeZone } from './hooks/useTimeZone'
 import { DATA_SOURCE } from './services/rates'
-import { getDefaultPeriod } from './utils/datetime'
 
 function App() {
   // Captured once, when the app loads: this is the moment of the query.
@@ -18,10 +17,10 @@ function App() {
   const { theme, toggleTheme } = useTheme()
   // Currency we convert from: CAD on the first visit, then the last one chosen.
   const [base, setBase] = useStoredCurrency('pecuniography-base-currency', DEFAULT_BASE)
+  // Currency we convert to: USD on the first visit, then the last one chosen.
+  const [quote, setQuote] = useStoredCurrency('pecuniography-quote-currency', DEFAULT_QUOTE)
   // Amount to convert. Not remembered: every visit starts at 1.
   const [amount, setAmount] = useState(1)
-  // Last 30 days up to today (step 10 will let the user change them).
-  const period = getDefaultPeriod(queriedAt, timeZone)
 
   return (
     <div className="flex min-h-svh flex-col bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
@@ -43,13 +42,7 @@ function App() {
             amount={amount}
             onAmountChange={setAmount}
           />
-          <RatePreview
-            base={base}
-            quote={DEFAULT_QUOTE}
-            amount={amount}
-            from={period.from}
-            to={period.to}
-          />
+          <TargetCurrencyPanel base={base} quote={quote} onQuoteChange={setQuote} amount={amount} />
         </div>
       </main>
 
