@@ -22,6 +22,13 @@ function App() {
   // Amount to convert. Not remembered: every visit starts at 1.
   const [amount, setAmount] = useState(1)
 
+  // Swap button: origin and target trade places (both stay remembered).
+  // The amount stays the same: "1 CAD -> USD" becomes "1 USD -> CAD".
+  const swapCurrencies = () => {
+    setBase(quote)
+    setQuote(base)
+  }
+
   return (
     <div className="flex min-h-svh flex-col bg-white text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
       <Header
@@ -41,6 +48,7 @@ function App() {
             onBaseChange={setBase}
             amount={amount}
             onAmountChange={setAmount}
+            onSwap={swapCurrencies}
           />
           <TargetCurrencyPanel base={base} quote={quote} onQuoteChange={setQuote} amount={amount} />
         </div>
